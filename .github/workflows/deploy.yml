@@ -15,6 +15,7 @@ jobs:
       DB_DATABASE: postgres
       IMAGE_NAME: harden
       IMAGE_TAG: latest
+      REGISTRY_NAME: hardencontainerregistry
       STORAGE_ACCOUNT_SHARE_NAME: storageaccountshare
     runs-on: ubuntu-latest
     steps:
@@ -29,7 +30,14 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az acr create --resource-group ${{ secrets.RESOURCE_GROUP }} --name hardencontainerregistry --sku Basic
+            az acr create --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ env.REGISTRY_NAME }} --sku Basic
+            registryId=$(az acr show \
+              --name ${{ env.REGISTRY_NAME }} \
+              --query id --output tsv)
+            az role assignment create \
+              --assignee ${{ secrets.REGISTRY_USERNAME }} \
+              --scope $registryId \
+              --role AcrPush
 
       - name: 'Build and push image'
         uses: azure/docker-login@v1
@@ -38,8 +46,8 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/$IMAGE_NAME:$IMAGE_TAG
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/$IMAGE_NAME:$IMAGE_TAG
+          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
 
       - name: 'Deploy project'
         uses: azure/CLI@v1
@@ -56,7 +64,7 @@ jobs:
                     s/{{ DNS_NAME_LABEL }}/${{ secrets.RESOURCE_GROUP }}/; \
                     s/{{ IMAGE_NAME }}/$IMAGE_NAME/; \
                     s/{{ IMAGE_TAG }}/$IMAGE_TAG/; \
-                    s/{{ REGISTRY_LOGIN_SERVER }}/${{ secrets.REGISTRY_LOGIN_SERVER }}/; \
+                    s/{{ REGISTRY_LOGIN_SERVER }}/${{ env.REGISTRY_NAME }}.azurecr.io/; \
                     s/{{ REGISTRY_USERNAME }}/${{ secrets.REGISTRY_USERNAME }}/; \
                     s/{{ REGISTRY_PASSWORD }}/${{ secrets.REGISTRY_PASSWORD }}/; \
                     s/{{ STORAGE_ACCOUNT_NAME }}/hardenstorageaccount/; \
