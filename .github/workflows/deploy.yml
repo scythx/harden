@@ -29,7 +29,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az acr create --resource-group ${{ secrets.RESOURCE_GROUP }} --name HardenContainerRegistry --sku Basic
+            az acr create --resource-group ${{ secrets.RESOURCE_GROUP }} --name hardencontainerregistry --sku Basic
 
       - name: 'Build and push image'
         uses: azure/docker-login@v1
@@ -59,7 +59,7 @@ jobs:
                     s/{{ REGISTRY_LOGIN_SERVER }}/${{ secrets.REGISTRY_LOGIN_SERVER }}/; \
                     s/{{ REGISTRY_USERNAME }}/${{ secrets.REGISTRY_USERNAME }}/; \
                     s/{{ REGISTRY_PASSWORD }}/${{ secrets.REGISTRY_PASSWORD }}/; \
-                    s/{{ STORAGE_ACCOUNT_NAME }}/${{ secrets.STORAGE_ACCOUNT_NAME }}/; \
-                    s/{{ STORAGE_ACCOUNT_KEY }}/${{ secrets.STORAGE_ACCOUNT_KEY }}/; \
+                    s/{{ STORAGE_ACCOUNT_NAME }}/hardenstorageaccount/; \
+                    s/{{ STORAGE_ACCOUNT_KEY }}/9nWzjVf6WmYk9zlc6wL+VrVHcmaImq\/GEcX\/LhZgXDdciB7INq7jB7TcdpoRoVsF\/bSWwSdDCd4BC4wxx4SeGA==/; \
                     s/{{ STORAGE_ACCOUNT_SHARE_NAME }}/$STORAGE_ACCOUNT_SHARE_NAME/;" aci.yaml
             az container create --resource-group ${{ secrets.RESOURCE_GROUP }} --file aci.yaml
