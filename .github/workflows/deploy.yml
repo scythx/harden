@@ -24,6 +24,12 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: 'Creare azure container registry'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az acr create --resource-group ${{ secrets.RESOURCE_GROUP }} --name HardenContainerRegistry --sku Basic
+
       - name: 'Build and push image'
         uses: azure/docker-login@v1
         with:
@@ -33,3 +39,25 @@ jobs:
       - run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/$IMAGE_NAME:$IMAGE_TAG
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: 'Deploy project'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            sed -i "s/{{ NODE_ENV }}/$NODE_ENV/; \
+                    s/{{ NODE_HOSTNAME }}/$NODE_HOSTNAME/; \
+                    s/{{ PORT }}/$PORT/; \
+                    s/{{ DB_HOST }}/$DB_HOST/; \
+                    s/{{ DB_PORT }}/$DB_PORT/; \
+                    s/{{ DB_USER }}/$DB_USER/; \
+                    s/{{ DB_PASSWORD }}/XzBjPw6S8VaDCBX/; \
+                    s/{{ DB_DATABASE }}/$DB_DATABASE/; \
+                    s/{{ DNS_NAME_LABEL }}/${{ secrets.RESOURCE_GROUP }}/; \
+                    s/{{ IMAGE_NAME }}/$IMAGE_NAME/; \
+                    s/{{ IMAGE_TAG }}/$IMAGE_TAG/; \
+                    s/{{ REGISTRY_LOGIN_SERVER }}/${{ secrets.REGISTRY_LOGIN_SERVER }}/; \
+                    s/{{ REGISTRY_USERNAME }}/${{ secrets.REGISTRY_USERNAME }}/; \
+                    s/{{ REGISTRY_PASSWORD }}/${{ secrets.REGISTRY_PASSWORD }}/; \
+                    s/{{ STORAGE_ACCOUNT_NAME }}/${{ secrets.STORAGE_ACCOUNT_NAME }}/; \
+                    s/{{ STORAGE_ACCOUNT_KEY }}/${{ secrets.STORAGE_ACCOUNT_KEY }}/;" aci.yaml
+            az container create --resource-group harden --file aci.yaml
