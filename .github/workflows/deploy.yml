@@ -7,7 +7,7 @@ jobs:
   deploy:
     env:
       NODE_ENV: development
-      NODE_HOSTNAME: harden.southeastasia.azurecontainer.io
+      NODE_HOSTNAME: hardenweb.southeastasia.azurecontainer.io
       PORT: 80
       DB_HOST: harden-db.postgres.database.azure.com
       DB_PORT: 5432
@@ -60,4 +60,4 @@ jobs:
                     s/{{ REGISTRY_PASSWORD }}/${{ secrets.REGISTRY_PASSWORD }}/; \
                     s/{{ STORAGE_ACCOUNT_NAME }}/${{ secrets.STORAGE_ACCOUNT_NAME }}/; \
                     s/{{ STORAGE_ACCOUNT_KEY }}/${{ secrets.STORAGE_ACCOUNT_KEY }}/;" aci.yaml
-            az container create --resource-group harden --file aci.yaml
+            az container create --resource-group ${{ secrets.RESOURCE_GROUP }} --file aci.yaml

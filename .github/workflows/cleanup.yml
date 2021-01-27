@@ -17,6 +17,10 @@ jobs:
         with:
           inlineScript: |
             az container delete \
-              --name harden \
-              --resource-group harden \
+              --name HardenWeb \
+              --resource-group ${{ secrets.RESOURCE_GROUP }} \
+              --yes
+            az acr delete \
+              --name HardenContainerRegistry \
+              --resource-group ${{ secrets.RESOURCE_GROUP }} \
               --yes
