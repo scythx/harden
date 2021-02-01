@@ -1,19 +1,16 @@
 name: Build frontend
-
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-
+    tags:
+      - 'v*'
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [15.x]
-
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -25,7 +22,7 @@ jobs:
           cd src/frontend
           npm ci
           npm run build --if-present
-          zip --junk-paths harden-frontend dist/*
+          zip -r --junk-paths frontend dist/*
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -35,13 +32,13 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: harden
           draft: false
-          prerelease: true
+          prerelease: false
       - name: Upload release artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./src/frontend/harden-frontend.zip
-          asset_name: harden-frontend.zip
+          asset_path: ./src/frontend/frontend.zip
+          asset_name: frontend.zip
           asset_content_type: application/zip
