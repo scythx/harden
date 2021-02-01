@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: "Build frontend"
+      - name: Build frontend
         run: |
           cd src/frontend
           npm ci
@@ -33,7 +33,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: harden-frontend ${{ github.ref }}
           draft: false
           prerelease: false
-            
+      - name: Upload release artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./harden-frontend.zip
+          asset_name: harden-frontend.zip
+          asset_content_type: application/zip
