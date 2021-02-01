@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -34,7 +35,7 @@ jobs:
           tag_name: ${{ github.sha }}
           release_name: harden-frontend ${{ github.sha }}
           draft: false
-          prerelease: false
+          prerelease: true
       - name: Upload release artifact
         uses: actions/upload-release-asset@v1
         env:
