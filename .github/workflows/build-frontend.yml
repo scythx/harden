@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Build frontend
+      - name: Build backend
         run: |
           cd src/backend
           npm ci
@@ -33,5 +33,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            ./src/frontend/backend.zip
+            ./src/backend/backend.zip
             ./src/frontend/frontend.zip
