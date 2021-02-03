@@ -39,4 +39,4 @@ jobs:
           files: |
             ./src/backend/backend.zip
             ./src/frontend/frontend.zip
-            ./src/nginxl/nginx.zip
+            ./src/nginx/nginx.zip
