@@ -27,6 +27,10 @@ jobs:
           npm ci
           npm run build --if-present
           zip -r --junk-paths frontend dist
+      - name: Zip nginx artifacts
+        run: |
+          cd src/nginx
+          zip -r --junk-paths nginx .
       - name: Create release
         uses: softprops/action-gh-release@v1
         env:
@@ -35,3 +39,4 @@ jobs:
           files: |
             ./src/backend/backend.zip
             ./src/frontend/frontend.zip
+            ./src/nginxl/nginx.zip
